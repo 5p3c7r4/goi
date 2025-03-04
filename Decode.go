@@ -40,6 +40,8 @@ func CustomDecode(src map[string]any, dst any) error {
 						panic(fmt.Sprintf("failed to convert string '%s' to int", strVal))
 					}
 					field.SetInt(int64(parsedInt))
+				} else if floatVal, ok := value.(float64); ok {
+					field.SetInt(int64(floatVal))
 				} else {
 					panic(fmt.Sprintf("expected int for %s, got %T", tag, value))
 				}

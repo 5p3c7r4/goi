@@ -2,7 +2,9 @@ package goi
 
 import (
 	"fmt"
+	"math"
 	"reflect"
+	"strconv"
 )
 
 type NumberValidator struct {
@@ -26,11 +28,31 @@ func (s *NumberValidator) NumberBase() {
 		if s.originalValue == nil || *s.originalValue == nil {
 			return nil
 		}
+		if reflect.TypeOf(*s.originalValue).Kind() == reflect.String {
+			number, err := strconv.ParseFloat((*s.originalValue).(string), 64)
+			if err != nil {
+				return fmt.Errorf("%s not a number", s.label)
+			}
+			*value = number
+			return nil
+		}
 		if reflect.TypeOf(*s.originalValue).Kind() != reflect.Float32 && reflect.TypeOf(*s.originalValue).Kind() != reflect.Float64 {
 			return fmt.Errorf("%s not a number", s.label)
 		}
 		return nil
 	})
+}
+
+func (s *NumberValidator) Integer() *NumberValidator {
+	s.ruleNames = append(s.ruleNames, "integer")
+	s.rules = append(s.rules, func(value *any) error {
+		f:= (*value).(float64)
+		if math.Floor(f) != f {
+			return fmt.Errorf("%s not an integer", s.label)
+		}
+		return nil
+	})
+	return s
 }
 
 func (s *NumberValidator) Required() *NumberValidator {

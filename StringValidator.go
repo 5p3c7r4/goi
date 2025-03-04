@@ -173,12 +173,14 @@ func (s *StringValidator) Valid(value []any) *StringValidator {
 func (s *StringValidator) Custom(customFunction func(value *any, helpers *Helper) any) *StringValidator {
 	s.ruleNames = append(s.ruleNames, "custom")
 	s.rules = append(s.rules, func(v *any) error {
-		h := &Helper{}
-		result := customFunction(v, h)
-		if reflect.TypeOf(result) == reflect.TypeOf(fmt.Errorf("")) {
-			return (result).(error)
-		} else {
-			*v = result
+		if *s.originalValue != nil {
+			h := &Helper{}
+			result := customFunction(v, h)
+			if reflect.TypeOf(result) == reflect.TypeOf(fmt.Errorf("")) {
+				return (result).(error)
+			} else {
+				*v = result
+			}
 		}
 		return nil
 	})
